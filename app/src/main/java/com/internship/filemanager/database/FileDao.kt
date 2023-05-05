@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.internship.filemanager.data.FileNote
+import com.internship.filemanager.data.FileState
 import kotlinx.coroutines.flow.Flow
-import java.io.File
 
 @Dao
 interface FileDao {
@@ -31,4 +31,22 @@ interface FileDao {
 
     @Insert
     suspend fun insertAll(vararg files: FileNote)
+
+    @Insert
+    suspend fun insert(file: FileNote)
+
+    @Query("DELETE FROM file")
+    suspend fun deleteAll()
+
+    @Query("SELECT COUNT(*) FROM file WHERE id = :id")
+    suspend fun filesAmountWithId(id: Int): Int
+
+    @Query("UPDATE file SET fileState=:fileState WHERE id = :id")
+    suspend fun updateFileState(id: Int, fileState: Int)
+
+    @Query("UPDATE file SET fileState=0")
+    suspend fun updateFileStateBeforeClose()
+
+    @Query("DELETE FROM file WHERE fileState=0")
+    suspend fun deleteOldFiles()
 }

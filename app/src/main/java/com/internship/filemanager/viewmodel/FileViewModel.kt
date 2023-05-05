@@ -1,6 +1,8 @@
 package com.internship.filemanager.viewmodel
 
 import android.os.Environment
+import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.internship.filemanager.data.FileNote
@@ -40,9 +42,20 @@ class FileViewModel: ViewModel() {
                     space = it.usableSpace.toInt(),
                     date = getCreationTime(it.absolutePath),
                     extension = it.extension,
-                    path = it.path)
+                    path = it.path,
+                    fileState = 1,
+                )
                 }
-            fileRepository.insertAllFiles(*files.toList().toTypedArray())
+            _files.value = files.toList().sortedBy { it.name }
+            files.forEach {
+                if (fileRepository.isFileExist(it.id)) {
+                    fileRepository.updateFileState(id = it.id, fileState = 1)
+                } else {
+                    fileRepository.insert(it)
+                    fileRepository.updateFileState(id = it.id, fileState = 2)
+                }
+            }
+            fileRepository.deleteOldFiles()
             fileRepository.getFilesSortedByKey(SortField.NAME).collect {
                 _files.value = it
             }

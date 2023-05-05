@@ -51,7 +51,8 @@ fun MainScreen(
                     space = fileElem.space / 1024,
                     date = Date(fileElem.date),
                     path = fileElem.path,
-                    hash = fileElem.id
+                    hash = fileElem.id,
+                    fileState = fileElem.fileState
                 )
             }
         }

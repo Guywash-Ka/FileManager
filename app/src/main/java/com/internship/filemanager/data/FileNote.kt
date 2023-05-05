@@ -10,5 +10,6 @@ data class FileNote(
     val space: Int,
     val path: String,
     val extension: String,
-    val date: Long
+    val date: Long,
+    val fileState: Int // 0 - to delete; 1 - exist, but old; 2 - exist, new
 )

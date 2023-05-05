@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.SortField
 import com.internship.filemanager.database.FileDatabase
+import com.internship.filemanager.database.migration_1_2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -22,9 +23,10 @@ class FileRepository(
             FileDatabase::class.java,
             DATABASE_NAME
         )
+        .addMigrations(migration_1_2)
         .build()
 
-    fun getFilesSortedByKey(key: SortField, isAsc: Int = 1): Flow<List<FileNote>> {
+    fun getFilesSortedByKey(key: SortField = SortField.NAME, isAsc: Int = 1): Flow<List<FileNote>> {
         return when (key) {
             SortField.NAME -> database.fileDao().getFilesSortedByName(isAsc)
             SortField.SPACE -> database.fileDao().getFilesSortedBySpace(isAsc)
@@ -33,8 +35,28 @@ class FileRepository(
         }
     }
 
+    suspend fun deleteAllFiles() {
+        database.fileDao().deleteAll()
+    }
+
     suspend fun insertAllFiles(vararg files: FileNote) {
         database.fileDao().insertAll(*files)
+    }
+
+    suspend fun isFileExist(id: Int): Boolean {
+        return database.fileDao().filesAmountWithId(id) > 0
+    }
+
+    suspend fun updateFileState(id: Int, fileState: Int) {
+        database.fileDao().updateFileState(id = id, fileState = fileState)
+    }
+
+    suspend fun insert(file: FileNote) {
+        database.fileDao().insert(file)
+    }
+
+    suspend fun deleteOldFiles(){
+        database.fileDao().deleteOldFiles()
     }
 
     companion object {
