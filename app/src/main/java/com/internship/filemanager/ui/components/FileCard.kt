@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,13 +26,25 @@ fun FileCard(
     date: Date,
     hash: Int
 ) {
+    val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml", "zip")
     Card(modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth(1f), elevation = 4.dp) {
         Row {
-            Image(
-                painter = painterResource(selectIcon(extension)),
-                contentDescription = "File icon",
-                modifier = Modifier.width(50.dp).height(100.dp)
-            )
+            if (!popularExtensions.contains(extension)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(selectIcon(extension)),
+                        contentDescription = "File icon",
+                        modifier = Modifier.width(50.dp).height(100.dp)
+                    )
+                    Text(text = extension, modifier = Modifier.rotate(90f), fontWeight = FontWeight.Bold)
+                }
+            } else {
+                Image(
+                    painter = painterResource(selectIcon(extension)),
+                    contentDescription = "File icon",
+                    modifier = Modifier.width(50.dp).height(100.dp)
+                )
+            }
             Text(text = "Extension: $extension\nName: $name\nSpace: $space KB\nDate: $date\nPath: $path\nHash: $hash")
 
         }
@@ -40,7 +54,7 @@ fun FileCard(
 @Preview(showBackground = true)
 @Composable
 fun FileCardPreview() {
-    FileCard(extension = "mp3", name = "picture", space = 2200, date = Date(Instant.now().toEpochMilli()), path = "/system", hash = 235347612)
+    FileCard(extension = "media", name = "picture", space = 2200, date = Date(Instant.now().toEpochMilli()), path = "/system", hash = 235347612)
 }
 
 fun selectIcon(extension: String): Int {
