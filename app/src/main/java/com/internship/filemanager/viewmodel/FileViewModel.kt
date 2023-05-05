@@ -3,25 +3,53 @@ package com.internship.filemanager.viewmodel
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.internship.filemanager.data.FileNote
+import com.internship.filemanager.data.SortField
+import com.internship.filemanager.repository.FileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.*
 
 class FileViewModel: ViewModel() {
-    private val _files: MutableStateFlow<List<File>> = MutableStateFlow(emptyList())
-    val files: StateFlow<List<File>>
+    private val fileRepository = FileRepository.get()
+
+    private val _files: MutableStateFlow<List<FileNote>> = MutableStateFlow(emptyList())
+    val files: StateFlow<List<FileNote>>
         get() = _files.asStateFlow()
 
-    private fun getAllFiles(): List<File> {
-        val path = Environment.getRootDirectory().toString()
-        return File(path).walkTopDown().filter { it.isFile }.toList()
+    private fun getFilesSortedByKey(key: SortField) {
+
     }
 
     init {
         viewModelScope.launch {
-            _files.value = getAllFiles()
+            val path = Environment.getRootDirectory().toString()
+            val files = File(path)
+                .walkTopDown()
+                .filter { it.isFile }
+                .map { FileNote(
+                    id = it.hashCode(),
+                    name = it.name,
+                    space = it.usableSpace.toInt(),
+                    date = getCreationTime(it.absolutePath),
+                    extension = it.extension,
+                    path = it.path)
+                }
+            fileRepository.insertAllFiles(*files.toList().toTypedArray())
+            fileRepository.getFilesSortedByKey(SortField.NAME).collect {
+                _files.value = it
+            }
         }
     }
+}
+
+fun getCreationTime(path: String): Long {
+    return Files.readAttributes(Paths.get(path), BasicFileAttributes::class.java).creationTime().toMillis()
 }

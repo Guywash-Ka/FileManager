@@ -7,15 +7,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.internship.filemanager.R
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.BasicFileAttributes
 import java.time.Instant
 import java.util.*
-import kotlin.collections.HashSet
 
 @Composable
 fun FileCard(
@@ -33,8 +31,7 @@ fun FileCard(
                 contentDescription = "File icon",
                 modifier = Modifier.width(50.dp).height(100.dp)
             )
-            val time = Date(Files.readAttributes(Paths.get(path), BasicFileAttributes::class.java).creationTime().toMillis())
-            Text(text = "Extension: $extension\nName: $name\nSpace: $space KB\nDate: $time\nPath: $path\nHash: $hash")
+            Text(text = "Extension: $extension\nName: $name\nSpace: $space KB\nDate: $date\nPath: $path\nHash: $hash")
 
         }
     }
