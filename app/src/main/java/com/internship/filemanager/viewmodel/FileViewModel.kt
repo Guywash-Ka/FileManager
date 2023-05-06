@@ -27,13 +27,17 @@ class FileViewModel: ViewModel() {
         return fileRepository.getFilesSortedByKey(key, isAsc)
     }
 
+    fun getFilesByExtension(extension: String): Flow<List<FileNote>> {
+        return fileRepository.getFilesByExtension(extension)
+    }
+
     init {
         viewModelScope.launch {
-            val path = Environment.getRootDirectory().toString()
+            val path = Environment.getExternalStorageDirectory().absolutePath
             val files = File(path)
-                .walkTopDown()
-                .filter { it.isFile }
-                .map { FileNote(
+                .listFiles()
+//                .filter { it.isFile }
+                ?.map { FileNote(
                     id = it.hashCode(),
                     name = it.name,
                     space = it.length().toInt(),
@@ -43,7 +47,7 @@ class FileViewModel: ViewModel() {
                     fileState = 1,
                 )
                 }
-            _files.value = files.toList()
+            _files.value = files!!
             files.forEach {
                 if (fileRepository.isFileExist(it.id)) {
                     fileRepository.updateFileState(id = it.id, fileState = 1)

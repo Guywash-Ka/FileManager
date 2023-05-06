@@ -29,6 +29,9 @@ interface FileDao {
             "CASE WHEN :isAsc = 2 THEN extension END DESC ")
     fun getFilesSortedByExtension(isAsc: Int?): Flow<List<FileNote>>
 
+    @Query("SELECT * FROM file WHERE extension = :extension")
+    fun getFilesByExtension(extension: String): Flow<List<FileNote>>
+
     @Insert
     suspend fun insertAll(vararg files: FileNote)
 

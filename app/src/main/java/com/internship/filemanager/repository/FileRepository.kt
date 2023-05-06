@@ -35,6 +35,10 @@ class FileRepository(
         }
     }
 
+    fun getFilesByExtension(extension: String): Flow<List<FileNote>> {
+        return database.fileDao().getFilesByExtension(extension)
+    }
+
     suspend fun deleteAllFiles() {
         database.fileDao().deleteAll()
     }
@@ -49,6 +53,10 @@ class FileRepository(
 
     suspend fun updateFileState(id: Int, fileState: Int) {
         database.fileDao().updateFileState(id = id, fileState = fileState)
+    }
+
+    suspend fun updateFileStateBeforeClose() {
+        database.fileDao().updateFileStateBeforeClose()
     }
 
     suspend fun insert(file: FileNote) {
