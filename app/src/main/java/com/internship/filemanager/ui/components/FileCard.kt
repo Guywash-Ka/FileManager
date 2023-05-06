@@ -50,7 +50,9 @@ fun FileCard(
                     Image(
                         painter = painterResource(selectIcon(extension)),
                         contentDescription = "File icon",
-                        modifier = Modifier.width(50.dp).height(100.dp)
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(100.dp)
                     )
                     Text(text = extension, fontWeight = FontWeight.Bold)
                 }
@@ -58,10 +60,12 @@ fun FileCard(
                 Image(
                     painter = painterResource(selectIcon(extension)),
                     contentDescription = "File icon",
-                    modifier = Modifier.width(50.dp).height(100.dp)
+                    modifier = Modifier
+                        .width(50.dp)
+                        .height(100.dp)
                 )
             }
-            Text(text = "Extension: $extension\nName: $name\nSpace: $space KB\nDate: $date\nPath: $path\nHash: $hash")
+            Text(text = "Extension: $extension\nName: $name\nSpace: ${ styleSpace(space) }\nDate: $date\nPath: $path\nHash: $hash")
 
         }
     }
@@ -86,5 +90,14 @@ fun selectIcon(extension: String): Int {
         "xml" -> R.drawable.xml
         "zip" -> R.drawable.zip
         else -> R.drawable.file
+    }
+}
+
+fun styleSpace(space: Int): String {
+    return when (space) {
+        in 0..1023 -> "$space Bytes"
+        in 1024..1_048_575 -> "${ space / 1024 } KB"
+        in 1_048_576..1_073_741_823 -> "${ space / 1048576 } MB"
+        else -> "${space / 1_073_741_824} GB"
     }
 }

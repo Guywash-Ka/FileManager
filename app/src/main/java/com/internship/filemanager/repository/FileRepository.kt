@@ -26,7 +26,7 @@ class FileRepository(
         .addMigrations(migration_1_2)
         .build()
 
-    fun getFilesSortedByKey(key: SortField = SortField.NAME, isAsc: Int = 1): Flow<List<FileNote>> {
+    fun getFilesSortedByKey(key: SortField = SortField.NAME, isAsc: Int): Flow<List<FileNote>> {
         return when (key) {
             SortField.NAME -> database.fileDao().getFilesSortedByName(isAsc)
             SortField.SPACE -> database.fileDao().getFilesSortedBySpace(isAsc)
