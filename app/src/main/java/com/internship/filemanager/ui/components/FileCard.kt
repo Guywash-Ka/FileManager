@@ -10,9 +10,9 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -28,10 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
+import com.internship.filemanager.BuildConfig
 import com.internship.filemanager.R
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FileState
 import com.internship.filemanager.viewmodel.getCreationTime
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.time.Instant
 import java.util.*
@@ -95,7 +97,7 @@ fun FileCard(
                     intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                     context.startActivity(intent)
                 } catch (e: java.lang.Error) {
-//                    println(e.message)
+                    println(e.message)
                 }
             }
         }
@@ -136,8 +138,33 @@ fun FileCard(
                     "Date: $date\n" +
                     "Path: $path\n" +
                     "Hash: $hash\n" +
-                    "FileState: $fileState\n"
+                    "FileState: $fileState\n",
+                modifier = modifier
             )
+            IconButton(onClick = {
+                val file = File(path)
+                try {
+                    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    intent.type = "*/*"
+                    intent.putExtra(Intent.EXTRA_STREAM, uri)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
+                    context.startActivity(intent)
+                } catch (e: java.lang.Error) {
+                    e.printStackTrace()
+                }
+            }) {
+                Icon(
+                    Icons.Default.Share,
+                    "Share",
+                    modifier = modifier
+                        .width(50.dp)
+                        .height(100.dp)
+                        .align(Alignment.CenterVertically),
+                    tint = Color.Gray,
+                )
+            }
         }
     }
 }
