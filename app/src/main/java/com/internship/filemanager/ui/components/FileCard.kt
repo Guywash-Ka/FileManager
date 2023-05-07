@@ -1,6 +1,12 @@
 package com.internship.filemanager.ui.components
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,17 +16,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.content.FileProvider
 import com.internship.filemanager.R
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FileState
@@ -28,6 +35,7 @@ import com.internship.filemanager.viewmodel.getCreationTime
 import java.io.File
 import java.time.Instant
 import java.util.*
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -43,8 +51,10 @@ fun FileCard(
     filesToShow: MutableState<List<FileNote>>,
     currentPath: MutableState<String>,
 ) {
+    val context = LocalContext.current
     val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml", "zip")
-    val backgroundColor = when (fileState) {
+    val backColor = remember { mutableStateOf(fileState) }
+    val backgroundColor = when (backColor.value) {
         FileState.NEW.value -> Color.Green.copy(alpha = 0.2f)
         FileState.OLD.value -> Color.White
         else -> Color.Gray.copy(alpha = 0.2f)
@@ -70,7 +80,23 @@ fun FileCard(
                             path = it.path,
                             fileState = 1,
                         )
-                    }?: emptyList()
+                    }
+                    ?.sortedBy { it.name }
+                    ?: emptyList()
+            } else {
+                Log.d("File tag", "Path: $path,\nFile: $file")
+                try {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        FileProvider.getUriForFile(
+                            context,
+                            context.applicationContext.packageName + ".provider",
+                            file))
+                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    context.startActivity(intent)
+                } catch (e: java.lang.Error) {
+//                    println(e.message)
+                }
             }
         }
     ) {
@@ -78,7 +104,9 @@ fun FileCard(
             if (!popularExtensions.contains(extension)) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = modifier.width(50.dp).height(100.dp)
+                    modifier = modifier
+                        .width(50.dp)
+                        .height(100.dp)
                 ) {
                     Image(
                         painter = painterResource(selectIcon(extension)),
@@ -107,7 +135,9 @@ fun FileCard(
                     "Space: ${ styleSpace(space) }\n" +
                     "Date: $date\n" +
                     "Path: $path\n" +
-                    "Hash: $hash")
+                    "Hash: $hash\n" +
+                    "FileState: $fileState\n"
+            )
         }
     }
 }

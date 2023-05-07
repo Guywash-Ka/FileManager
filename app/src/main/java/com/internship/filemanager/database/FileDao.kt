@@ -32,6 +32,9 @@ interface FileDao {
     @Query("SELECT * FROM file WHERE extension = :extension")
     fun getFilesByExtension(extension: String): Flow<List<FileNote>>
 
+    @Query("SELECT * FROM file WHERE fileState = 2")
+    fun getNewFiles(): Flow<List<FileNote>>
+
     @Insert
     suspend fun insertAll(vararg files: FileNote)
 
@@ -43,6 +46,9 @@ interface FileDao {
 
     @Query("SELECT COUNT(*) FROM file WHERE id = :id")
     suspend fun filesAmountWithId(id: Int): Int
+
+    @Query("SELECT EXISTS(SELECT * FROM file WHERE id = :id)")
+    suspend fun rowIsExist(id : Int) : Boolean
 
     @Query("UPDATE file SET fileState=:fileState WHERE id = :id")
     suspend fun updateFileState(id: Int, fileState: Int)

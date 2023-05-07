@@ -1,23 +1,19 @@
 package com.internship.filemanager.ui.components
 
 import android.os.Environment
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FilterState
 import com.internship.filemanager.viewmodel.getCreationTime
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -146,5 +142,7 @@ fun getFiles(path: String): List<FileNote> {
                 path = it.path,
                 fileState = 1,
             )
-        } ?: emptyList()
+        }
+        ?.sortedBy { it.name }
+        ?: emptyList()
 }
