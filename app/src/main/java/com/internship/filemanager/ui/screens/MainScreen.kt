@@ -1,11 +1,12 @@
 package com.internship.filemanager.ui.screens
 
-import android.annotation.SuppressLint
 import android.os.Environment
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,14 +19,11 @@ import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.ui.components.FileCard
 import com.internship.filemanager.ui.components.TopAppBar
 import com.internship.filemanager.ui.theme.FileManagerTheme
-import com.internship.filemanager.viewmodel.FileViewModel
-import kotlinx.coroutines.launch
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.*
 
-@SuppressLint("UsableSpace")
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
@@ -33,50 +31,59 @@ fun MainScreen(
     newFiles: List<FileNote>
 ) {
     val filesToShow = remember { mutableStateOf(allFiles.value) }
-
-    val coroutineScope = rememberCoroutineScope()
     val currentPath = remember { mutableStateOf(Environment.getExternalStorageDirectory().path) }
+
     Box(modifier = modifier.fillMaxHeight(1f)) {
-        Column() {
-            TopAppBar(
-                modifier = modifier,
-                filesToShow = filesToShow,
-                currentPath = currentPath,
-            )
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    modifier = modifier,
+                    filesToShow = filesToShow,
+                    currentPath = currentPath,
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        filesToShow.value = newFiles
+                    },
+                    modifier = modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                ) {
+                    Text("Show new files", modifier = Modifier.padding(4.dp))
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center,
 
-            Text(
-                text = styleCurrentPath(currentPath.value),
-                modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                fontSize = 18.sp,
-                color = Color.Gray
-            )
 
-            LazyColumn(modifier) {
-                items(items = filesToShow.value) { fileElem ->
-                    FileCard(
-                        extension = fileElem.extension,
-                        name = fileElem.name,
-                        space = fileElem.space,
-                        date = Date(fileElem.date),
-                        path = fileElem.path,
-                        hash = fileElem.id,
-                        fileState = fileElem.fileState,
-                        filesToShow = filesToShow,
-                        currentPath = currentPath,
-                    )
+        ) {
+            Column() {
+                Text(
+                    text = styleCurrentPath(currentPath.value),
+                    modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    fontSize = 18.sp,
+                    color = Color.Gray
+                )
+
+                LazyColumn(modifier.padding(it)) {
+                    items(items = filesToShow.value) { fileElem ->
+                        FileCard(
+                            extension = fileElem.extension,
+                            name = fileElem.name,
+                            space = fileElem.space,
+                            date = Date(fileElem.date),
+                            path = fileElem.path,
+                            hash = fileElem.id,
+                            fileState = fileElem.fileState,
+                            filesToShow = filesToShow,
+                            currentPath = currentPath,
+                        )
+                    }
                 }
             }
         }
-        FloatingActionButton(
-            onClick = {
-                      filesToShow.value = newFiles
-            },
-            modifier = modifier
-                .align(Alignment.BottomEnd)
-                .padding(8.dp)
-        ) {
-            Text("Show new files", modifier = Modifier.padding(4.dp))
-        }
+
     }
 }
 
@@ -86,10 +93,6 @@ fun DefaultPreview() {
     FileManagerTheme {
 //        MainScreen(fileViewModel = FileViewModel())
     }
-}
-
-fun getCreationTime(path: String): Date {
-    return Date(Files.readAttributes(Paths.get(path), BasicFileAttributes::class.java).creationTime().toMillis())
 }
 
 fun styleCurrentPath(path: String): String {

@@ -1,7 +1,6 @@
 package com.internship.filemanager.viewmodel
 
 import android.os.Environment
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.internship.filemanager.data.FileNote
@@ -29,7 +28,6 @@ class FileViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
-            Log.d("VIEW MODEL TAG", "VM launched")
             _files.value = fileRepository.getFilesSortedByKey()
 
             Environment.getExternalStorageDirectory().walkTopDown().forEach {
