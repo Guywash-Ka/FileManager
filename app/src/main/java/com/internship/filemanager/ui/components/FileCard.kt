@@ -22,10 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import com.internship.filemanager.BuildConfig
@@ -35,11 +38,14 @@ import com.internship.filemanager.data.FileState
 import com.internship.filemanager.viewmodel.getCreationTime
 import kotlinx.coroutines.Dispatchers
 import java.io.File
+import java.text.DateFormat
+import java.text.DateFormat.getDateInstance
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalTextApi::class)
 @Composable
 fun FileCard(
     modifier: Modifier = Modifier,
@@ -55,12 +61,6 @@ fun FileCard(
 ) {
     val context = LocalContext.current
     val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml", "zip")
-    val backColor = remember { mutableStateOf(fileState) }
-    val backgroundColor = when (backColor.value) {
-        FileState.NEW.value -> Color.Green.copy(alpha = 0.2f)
-        FileState.OLD.value -> Color.White
-        else -> Color.Gray.copy(alpha = 0.2f)
-    }
     Card(
         modifier = modifier
             .padding(bottom = 4.dp)
@@ -102,45 +102,48 @@ fun FileCard(
             }
         }
     ) {
-        Row(modifier = modifier.background(backgroundColor)) {
-            if (!popularExtensions.contains(extension)) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = modifier
-                        .width(50.dp)
-                        .height(100.dp)
-                ) {
+        Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row() {
+                if (!popularExtensions.contains(extension)) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = modifier
+                            .width(50.dp)
+                            .height(60.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(selectIcon(extension)),
+                            contentDescription = "File icon",
+                            modifier = modifier
+                        )
+                        Text(
+                            modifier = modifier.padding(horizontal = 4.dp),
+                            text = extension,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                } else {
                     Image(
                         painter = painterResource(selectIcon(extension)),
                         contentDescription = "File icon",
-                        modifier = modifier
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(60.dp)
                     )
+                }
+                Column(modifier = modifier.height(60.dp).width(250.dp), verticalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        modifier = modifier.padding(horizontal = 4.dp),
-                        text = extension,
+                        text = name,
                         fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Text(text = SimpleDateFormat("dd.MM.yyyy|hh:mm").format(date), color = Color.Gray)
                 }
-            } else {
-                Image(
-                    painter = painterResource(selectIcon(extension)),
-                    contentDescription = "File icon",
-                    modifier = Modifier
-                        .width(50.dp)
-                        .height(100.dp)
-                )
             }
-            Text(text = "Extension: $extension\n" +
-                    "Name: $name\n" +
-                    "Space: ${ styleSpace(space) }\n" +
-                    "Date: $date\n" +
-                    "Path: $path\n" +
-                    "Hash: $hash\n" +
-                    "FileState: $fileState\n",
-                modifier = modifier
-            )
             IconButton(onClick = {
                 val file = File(path)
                 try {
@@ -159,10 +162,10 @@ fun FileCard(
                     Icons.Default.Share,
                     "Share",
                     modifier = modifier
-                        .width(50.dp)
-                        .height(100.dp)
+                        .width(40.dp)
+                        .height(50.dp)
                         .align(Alignment.CenterVertically),
-                    tint = Color.Gray,
+                    tint = Color.LightGray,
                 )
             }
         }
@@ -175,7 +178,7 @@ fun FileCard(
 fun FileCardPreview() {
     FileCard(
         extension = "zip",
-        name = "picture",
+        name = "PicturePicturePicturePicturePicturePicturePicturePicture",
         space = 2200,
         date = Date(Instant.now().toEpochMilli()),
         path = "/system",
