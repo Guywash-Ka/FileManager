@@ -47,29 +47,29 @@ class FileViewModel: ViewModel() {
             Log.d("VIEW MODEL TAG", "VM launched")
             _files.value = fileRepository.getFilesSortedByKey()
 
-            coroutineScope.launch {
-                Environment.getExternalStorageDirectory().walkTopDown().forEach {
-                    if (fileRepository.rowIsExist(it.hashCode())) {
+//            coroutineScope.launch {
+            Environment.getExternalStorageDirectory().walkTopDown().forEach {
+                if (fileRepository.rowIsExist(it.hashCode())) {
 //                    it.fileState = 1
-                        fileRepository.updateFileState(id = it.hashCode(), fileState = 1)
-                    } else {
+                    fileRepository.updateFileState(id = it.hashCode(), fileState = 1)
+                } else {
 //                    it.fileState = 2
-                        fileRepository.insert(
-                            FileNote (
-                                id = it.hashCode(),
-                                name = it.name,
-                                space = it.length().toInt(),
-                                date = getCreationTime(it.absolutePath),
-                                extension = it.extension,
-                                path = it.path,
-                                fileState = 2,
-                            )
+                    fileRepository.insert(
+                        FileNote (
+                            id = it.hashCode(),
+                            name = it.name,
+                            space = it.length().toInt(),
+                            date = getCreationTime(it.absolutePath),
+                            extension = it.extension,
+                            path = it.path,
+                            fileState = 2,
                         )
+                    )
 
 //                    fileRepository.updateFileState(id = it.hashCode(), fileState = 2)
-                    }
                 }
             }
+//            }
 //            fileRepository.getNewFiles().collect {
 //                if (fileRepository.rowIsExist(it.id)) {
 //                    it.fileState = 2
