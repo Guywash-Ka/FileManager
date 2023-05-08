@@ -60,7 +60,8 @@ fun FileCard(
     currentPath: MutableState<String>,
 ) {
     val context = LocalContext.current
-    val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml", "zip")
+    val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml",
+        "zip", "docx", "exe", "gif", "xlsx")
     Card(
         modifier = modifier
             .padding(bottom = 4.dp)
@@ -86,7 +87,6 @@ fun FileCard(
                     ?.sortedBy { it.name }
                     ?: emptyList()
             } else {
-                Log.d("File tag", "Path: $path,\nFile: $file")
                 try {
                     val intent = Intent(
                         Intent.ACTION_VIEW,
@@ -117,7 +117,7 @@ fun FileCard(
                             modifier = modifier
                         )
                         Text(
-                            modifier = modifier.padding(horizontal = 4.dp),
+                            modifier = modifier.padding(horizontal = 8.dp),
                             text = extension,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -193,6 +193,7 @@ fun selectIcon(extension: String): Int {
     return when (extension) {
         "" -> R.drawable.folder
         "doc" -> R.drawable.doc
+        "docx" -> R.drawable.docx
         "jpg" -> R.drawable.jpg
         "mp3" -> R.drawable.mp3
         "pdf" -> R.drawable.pdf
@@ -202,6 +203,9 @@ fun selectIcon(extension: String): Int {
         "xls" -> R.drawable.xls
         "xml" -> R.drawable.xml
         "zip" -> R.drawable.zip
+        "exe" -> R.drawable.exe
+        "gif" -> R.drawable.gif
+        "xlsx" -> R.drawable.xlsx
         else -> R.drawable.file
     }
 }

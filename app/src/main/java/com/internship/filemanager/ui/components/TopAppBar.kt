@@ -2,6 +2,8 @@ package com.internship.filemanager.ui.components
 
 import android.os.Environment
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.toUpperCase
 import androidx.room.util.copy
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FilterState
@@ -17,6 +20,7 @@ import com.internship.filemanager.viewmodel.getCreationTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.*
 
 @Composable
 fun TopAppBar(
@@ -30,7 +34,7 @@ fun TopAppBar(
     val dateState = remember { mutableStateOf(FilterState.NONE) }
     val extensionRowState = remember { mutableStateOf(false)}
 
-    val filesToShowCopy = filesToShow.value.toMutableStateList()
+
 
     Column() {
         Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -110,24 +114,39 @@ fun TopAppBar(
             }
         }
         if (extensionRowState.value) {
-            Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
-                TextButton(onClick = {
-                    filesToShow.value = filesToShowCopy.filter { it.extension == "png" }
-                }) {
-                    Text("PNG")
-                }
-                TextButton(onClick = {
-                    filesToShow.value = filesToShowCopy.filter { it.extension == "pdf" }
-                }) {
-                    Text("PDF")
-                }
-                TextButton(onClick = {
-                    filesToShow.value = filesToShowCopy.filter { it.extension == "doc" }
-                }) {
-                    Text("DOC")
+            val extensions = listOf("png", "pdf", "jpeg", "jpg", "xlsx", "zip", "doc", "docx", "gif", "exe")
+            LazyRow(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
+                items(items = extensions) {item ->
+                    TextButton(onClick = {
+                        filesToShow.value = File(currentPath.value).listFiles()
+                            ?.filter { curFile -> curFile.extension == item }
+                            ?.map { FileNote(
+                                id = it.hashCode(),
+                                name = it.name,
+                                space = it.length().toInt(),
+                                date = getCreationTime(it.absolutePath),
+                                extension = it.extension,
+                                path = it.path,
+                                fileState = 1,
+                            )
+                            }!!
+                    }) {
+                        Text(item.uppercase(Locale.ROOT))
+                    }
                 }
             }
         } else {
+            filesToShow.value = File(currentPath.value).listFiles()
+                ?.map { FileNote(
+                    id = it.hashCode(),
+                    name = it.name,
+                    space = it.length().toInt(),
+                    date = getCreationTime(it.absolutePath),
+                    extension = it.extension,
+                    path = it.path,
+                    fileState = 1,
+                )
+                }!!
         }
     }
 }
