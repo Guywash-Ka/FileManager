@@ -3,6 +3,7 @@ package com.internship.filemanager.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// DB Table entity
 @Entity(tableName = "file")
 data class FileNote(
     @PrimaryKey val id: Int,

@@ -10,25 +10,27 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.ui.screens.MainScreen
 import com.internship.filemanager.ui.theme.FileManagerTheme
 import com.internship.filemanager.viewmodel.FileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,7 +55,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun FileManagerApp(allFiles: State<List<FileNote>>, newFiles: List<FileNote>) {
     val isPermitted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -64,6 +65,21 @@ fun FileManagerApp(allFiles: State<List<FileNote>>, newFiles: List<FileNote>) {
     if (isPermitted) {
         MainScreen(allFiles = allFiles, newFiles = newFiles)
     } else {
-        LocalContext.current.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+        val context = LocalContext.current
+        AlertDialog(
+            onDismissRequest = {},
+            title = {
+                Text("Разрешите доступ к файлам")
+                    },
+            text = {
+                Text("Приложению необходимо иметь доступ ко всем файлам системы. После разрешения перезапустите приложение")
+                   },
+            buttons = {
+                Button(modifier = Modifier.padding(horizontal = 24.dp), onClick = {
+                    context.startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                })
+                { Text("OK")}
+            }
+        )
     }
 }

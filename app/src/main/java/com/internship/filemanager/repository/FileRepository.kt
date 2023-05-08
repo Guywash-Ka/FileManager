@@ -25,6 +25,7 @@ class FileRepository(
         .addMigrations(migration_1_2)
         .build()
 
+    // Method to get files sorted by some key(default - by name)
     fun getFilesSortedByKey(key: SortField = SortField.NAME, isAsc: Int = 1): List<FileNote> {
         val path = Environment.getExternalStorageDirectory().absolutePath
         val files = File(path)
@@ -60,6 +61,7 @@ class FileRepository(
         return database.fileDao().getNewFiles()
     }
 
+    // Checks whether file exist in table
     suspend fun rowIsExist(id: Int): Boolean {
         return database.fileDao().rowIsExist(id)
     }
@@ -68,6 +70,7 @@ class FileRepository(
         database.fileDao().updateFileState(id = id, fileState = fileState)
     }
 
+    // update all the rows and make their fileState field equal to 0
     suspend fun updateFileStateBeforeClose() {
         database.fileDao().updateFileStateBeforeClose()
     }
@@ -76,6 +79,7 @@ class FileRepository(
         database.fileDao().insert(file)
     }
 
+    // delete files which have fileState = 0
     suspend fun deleteOldFiles(){
         database.fileDao().deleteOldFiles()
     }

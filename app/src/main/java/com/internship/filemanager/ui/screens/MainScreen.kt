@@ -19,9 +19,6 @@ import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.ui.components.FileCard
 import com.internship.filemanager.ui.components.TopAppBar
 import com.internship.filemanager.ui.theme.FileManagerTheme
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.BasicFileAttributes
 import java.util.*
 
 @Composable
@@ -74,8 +71,6 @@ fun MainScreen(
                             space = fileElem.space,
                             date = Date(fileElem.date),
                             path = fileElem.path,
-                            hash = fileElem.id,
-                            fileState = fileElem.fileState,
                             filesToShow = filesToShow,
                             currentPath = currentPath,
                         )
@@ -87,14 +82,7 @@ fun MainScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    FileManagerTheme {
-//        MainScreen(fileViewModel = FileViewModel())
-    }
-}
-
+// replace default route to new string
 fun styleCurrentPath(path: String): String {
     return path.replaceFirst(Environment.getExternalStorageDirectory().toString(), "home")
 }

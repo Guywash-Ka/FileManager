@@ -10,14 +10,10 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.toUpperCase
-import androidx.room.util.copy
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FilterState
 import com.internship.filemanager.viewmodel.getCreationTime
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
@@ -33,8 +29,6 @@ fun TopAppBar(
     val spaceState = remember { mutableStateOf(FilterState.NONE) }
     val dateState = remember { mutableStateOf(FilterState.NONE) }
     val extensionRowState = remember { mutableStateOf(false)}
-
-
 
     Column() {
         Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {

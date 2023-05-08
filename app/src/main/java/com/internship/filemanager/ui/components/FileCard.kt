@@ -1,14 +1,8 @@
 package com.internship.filemanager.ui.components
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Environment
-import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -16,7 +10,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,28 +17,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import com.internship.filemanager.BuildConfig
 import com.internship.filemanager.R
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FileState
 import com.internship.filemanager.viewmodel.getCreationTime
-import kotlinx.coroutines.Dispatchers
 import java.io.File
-import java.text.DateFormat
-import java.text.DateFormat.getDateInstance
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalTextApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FileCard(
     modifier: Modifier = Modifier,
@@ -54,14 +42,13 @@ fun FileCard(
     space: Int,
     path: String,
     date: Date,
-    hash: Int,
-    fileState: Int,
     filesToShow: MutableState<List<FileNote>>,
     currentPath: MutableState<String>,
 ) {
     val context = LocalContext.current
     val popularExtensions = listOf("doc", "jpg", "mp3", "pdf", "png", "ppt", "txt", "xls", "xml",
         "zip", "docx", "exe", "gif", "xlsx")
+
     Card(
         modifier = modifier
             .padding(bottom = 4.dp)
@@ -104,7 +91,7 @@ fun FileCard(
     ) {
         Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceBetween) {
             Row() {
-                if (!popularExtensions.contains(extension)) {
+                if (!popularExtensions.contains(extension)) { // if not popular extension than choose default icon
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = modifier
@@ -133,7 +120,7 @@ fun FileCard(
                             .height(60.dp)
                     )
                 }
-                Column(modifier = modifier.height(60.dp).width(250.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                Column(modifier = modifier.width(250.dp), verticalArrangement = Arrangement.SpaceBetween) {
                     Text(
                         text = name,
                         fontWeight = FontWeight.Bold,
@@ -141,32 +128,39 @@ fun FileCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(text = SimpleDateFormat("dd.MM.yyyy|hh:mm").format(date), color = Color.Gray)
+                    Text(text = styleSpace(space), color = Color.Gray)
+                    Text(
+                        text = SimpleDateFormat("dd.MM.yyyy|hh:mm", Locale.getDefault())
+                            .format(date),
+                        color = Color.Gray
+                    )
                 }
             }
-            IconButton(onClick = {
-                val file = File(path)
-                try {
-                    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    intent.type = "*/*"
-                    intent.putExtra(Intent.EXTRA_STREAM, uri)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
-                    context.startActivity(intent)
-                } catch (e: java.lang.Error) {
-                    e.printStackTrace()
+            if (File(path).isFile) {
+                IconButton(onClick = {
+                    val file = File(path)
+                    try {
+                        val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+                        val intent = Intent(Intent.ACTION_SEND)
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        intent.type = "*/*"
+                        intent.putExtra(Intent.EXTRA_STREAM, uri)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
+                        context.startActivity(intent)
+                    } catch (e: java.lang.Error) {
+                        e.printStackTrace()
+                    }
+                }) {
+                    Icon(
+                        Icons.Default.Share,
+                        "Share",
+                        modifier = modifier
+                            .width(40.dp)
+                            .height(50.dp)
+                            .align(Alignment.CenterVertically),
+                        tint = Color.LightGray,
+                    )
                 }
-            }) {
-                Icon(
-                    Icons.Default.Share,
-                    "Share",
-                    modifier = modifier
-                        .width(40.dp)
-                        .height(50.dp)
-                        .align(Alignment.CenterVertically),
-                    tint = Color.LightGray,
-                )
             }
         }
     }
@@ -182,8 +176,6 @@ fun FileCardPreview() {
         space = 2200,
         date = Date(Instant.now().toEpochMilli()),
         path = "/system",
-        hash = 235347612,
-        fileState = FileState.NEW.value,
         filesToShow = mutableStateOf(listOf()),
         currentPath = mutableStateOf("current/path")
     )
@@ -210,6 +202,7 @@ fun selectIcon(extension: String): Int {
     }
 }
 
+// Converts bytes into other systems
 fun styleSpace(space: Int): String {
     return when (space) {
         in 0..1023 -> "$space Bytes"
