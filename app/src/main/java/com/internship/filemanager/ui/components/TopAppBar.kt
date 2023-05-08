@@ -109,6 +109,18 @@ fun TopAppBar(
             }
             TextButton(onClick = {
                 extensionRowState.value = !extensionRowState.value
+                filesToShow.value = File(currentPath.value).listFiles()
+                    ?.map { FileNote(
+                        id = it.hashCode(),
+                        name = it.name,
+                        space = it.length().toInt(),
+                        date = getCreationTime(it.absolutePath),
+                        extension = it.extension,
+                        path = it.path,
+                        fileState = 1,
+                    )
+                    }!!
+                    .sortedBy { it.name }
             }) {
                 Text("Extension")
             }
@@ -135,18 +147,6 @@ fun TopAppBar(
                     }
                 }
             }
-        } else {
-            filesToShow.value = File(currentPath.value).listFiles()
-                ?.map { FileNote(
-                    id = it.hashCode(),
-                    name = it.name,
-                    space = it.length().toInt(),
-                    date = getCreationTime(it.absolutePath),
-                    extension = it.extension,
-                    path = it.path,
-                    fileState = 1,
-                )
-                }!!
         }
     }
 }
