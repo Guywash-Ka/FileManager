@@ -8,17 +8,13 @@ import com.internship.filemanager.data.SortField
 import com.internship.filemanager.database.FileDatabase
 import com.internship.filemanager.database.migration_1_2
 import com.internship.filemanager.viewmodel.getCreationTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import java.io.File
 
 private const val DATABASE_NAME = "file-database"
 
 class FileRepository(
     context: Context,
-    private val coroutineScope: CoroutineScope = GlobalScope
 ) {
     private val database: FileDatabase = Room
         .databaseBuilder(
@@ -45,15 +41,19 @@ class FileRepository(
             }
             ?: emptyList()
         val resFiles = if (isAsc > 0) {
-            files.sortedBy { it.name }
+            when (key) {
+                SortField.NAME -> files.sortedBy { it.name }
+                SortField.SPACE -> files.sortedBy { it.space }
+                else -> files.sortedBy { it.date }
+            }
         } else {
-            files.sortedByDescending { it.name }
+            when (key) {
+                SortField.NAME -> files.sortedByDescending { it.name }
+                SortField.SPACE -> files.sortedByDescending { it.space }
+                else -> files.sortedByDescending { it.date }
+            }
         }
         return resFiles
-    }
-
-    fun getFilesByExtension(extension: String): Flow<List<FileNote>> {
-        return database.fileDao().getFilesByExtension(extension)
     }
 
     fun getNewFiles(): Flow<List<FileNote>> {
@@ -62,18 +62,6 @@ class FileRepository(
 
     suspend fun rowIsExist(id: Int): Boolean {
         return database.fileDao().rowIsExist(id)
-    }
-
-    suspend fun deleteAllFiles() {
-        database.fileDao().deleteAll()
-    }
-
-    suspend fun insertAllFiles(vararg files: FileNote) {
-        database.fileDao().insertAll(*files)
-    }
-
-    suspend fun isFileExist(id: Int): Boolean {
-        return database.fileDao().filesAmountWithId(id) > 0
     }
 
     suspend fun updateFileState(id: Int, fileState: Int) {
