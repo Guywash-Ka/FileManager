@@ -10,8 +10,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.ui.components.FileCard
 import com.internship.filemanager.ui.components.TopAppBar
@@ -27,12 +29,9 @@ import java.util.*
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-//    fileViewModel: FileViewModel = FileViewModel(),
     allFiles: State<List<FileNote>>,
     newFiles: List<FileNote>
 ) {
-//    val allFiles = fileViewModel.files.collectAsState()
-//    val newFiles = fileViewModel.getNewFiles().collectAsState(emptyList()).value
     val filesToShow = remember { mutableStateOf(allFiles.value) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -45,7 +44,12 @@ fun MainScreen(
                 currentPath = currentPath,
             )
 
-            Text(text = currentPath.value)
+            Text(
+                text = styleCurrentPath(currentPath.value),
+                modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                fontSize = 18.sp,
+                color = Color.Gray
+            )
 
             LazyColumn(modifier) {
                 items(items = filesToShow.value) { fileElem ->
@@ -65,11 +69,6 @@ fun MainScreen(
         }
         FloatingActionButton(
             onClick = {
-//                coroutineScope.launch {
-//                    fileViewModel.getNewFiles().collect {
-//                        filesToShow.value = it
-//                    }
-//                }
                       filesToShow.value = newFiles
             },
             modifier = modifier
@@ -91,4 +90,8 @@ fun DefaultPreview() {
 
 fun getCreationTime(path: String): Date {
     return Date(Files.readAttributes(Paths.get(path), BasicFileAttributes::class.java).creationTime().toMillis())
+}
+
+fun styleCurrentPath(path: String): String {
+    return path.replaceFirst(Environment.getExternalStorageDirectory().toString(), "home")
 }

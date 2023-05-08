@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.room.util.copy
 import com.internship.filemanager.data.FileNote
 import com.internship.filemanager.data.FilterState
 import com.internship.filemanager.viewmodel.getCreationTime
@@ -29,6 +30,8 @@ fun TopAppBar(
     val dateState = remember { mutableStateOf(FilterState.NONE) }
     val extensionRowState = remember { mutableStateOf(false)}
 
+    val filesToShowCopy = filesToShow.value.toMutableStateList()
+
     Column() {
         Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
             IconButton(onClick = {
@@ -46,6 +49,8 @@ fun TopAppBar(
                         filesToShow.value = filesToShow.value.sortedByDescending { it.name }
                         nameState.value = FilterState.DESCENDING
                     }
+                    spaceState.value = FilterState.NONE
+                    dateState.value = FilterState.NONE
                 }
 
             }) {
@@ -66,6 +71,8 @@ fun TopAppBar(
                     filesToShow.value = filesToShow.value.sortedByDescending { it.space }
                     spaceState.value = FilterState.DESCENDING
                 }
+                nameState.value = FilterState.NONE
+                dateState.value = FilterState.NONE
             }) {
                 Row() {
                     if (spaceState.value == FilterState.ASCENDING) {
@@ -84,6 +91,8 @@ fun TopAppBar(
                     filesToShow.value = filesToShow.value.sortedByDescending { it.date }
                     dateState.value = FilterState.DESCENDING
                 }
+                spaceState.value = FilterState.NONE
+                nameState.value = FilterState.NONE
             }) {
                 Row() {
                     if (dateState.value == FilterState.ASCENDING) {
@@ -103,21 +112,22 @@ fun TopAppBar(
         if (extensionRowState.value) {
             Row(modifier = modifier.fillMaxWidth(1f), horizontalArrangement = Arrangement.SpaceEvenly) {
                 TextButton(onClick = {
-                    filesToShow.value = filesToShow.value.filter { it.extension == "png" }
+                    filesToShow.value = filesToShowCopy.filter { it.extension == "png" }
                 }) {
                     Text("PNG")
                 }
                 TextButton(onClick = {
-                    filesToShow.value = filesToShow.value.filter { it.extension == "pdf" }
+                    filesToShow.value = filesToShowCopy.filter { it.extension == "pdf" }
                 }) {
                     Text("PDF")
                 }
                 TextButton(onClick = {
-                    filesToShow.value = filesToShow.value.filter { it.extension == "doc" }
+                    filesToShow.value = filesToShowCopy.filter { it.extension == "doc" }
                 }) {
                     Text("DOC")
                 }
             }
+        } else {
         }
     }
 }
