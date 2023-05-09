@@ -5,10 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.FabPosition
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,70 +28,66 @@ fun MainScreen(
 ) {
     val filesToShow = remember { mutableStateOf(allFiles.value) }
     val currentPath = remember { mutableStateOf(Environment.getExternalStorageDirectory().path) }
-
-    Box(modifier = modifier.fillMaxHeight(1f)) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    modifier = modifier,
-                    filesToShow = filesToShow,
-                    currentPath = currentPath,
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        filesToShow.value = newFiles
-                    },
-                    modifier = modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                ) {
-                    Text("Show new files", modifier = Modifier.padding(4.dp))
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Center,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                modifier = modifier,
+                filesToShow = filesToShow,
+                currentPath = currentPath,
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    filesToShow.value = newFiles
+                },
+                modifier = modifier
+                    .padding(8.dp)
+            ) {
+                Text("Show new files", modifier = Modifier.padding(4.dp))
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
 
 
-        ) {
-            Column() {
-                Text(
-                    text = styleCurrentPath(currentPath.value),
-                    modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    fontSize = 18.sp,
-                    color = Color.Gray
-                )
-                if (filesToShow.value.isNotEmpty()) {
-                    LazyColumn(modifier.padding(it)) {
-                        items(items = filesToShow.value) { fileElem ->
-                            FileCard(
-                                extension = fileElem.extension,
-                                name = fileElem.name,
-                                space = fileElem.space,
-                                date = Date(fileElem.date),
-                                path = fileElem.path,
-                                filesToShow = filesToShow,
-                                currentPath = currentPath,
-                            )
-                        }
-                    }
-                }
-                else {
-                    Column(
-                        modifier = modifier.fillMaxWidth(1f).fillMaxHeight(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.empty_folder),
-                            contentDescription = "Empty folder image"
+    ) {
+        Column() {
+            Text(
+                text = styleCurrentPath(currentPath.value),
+                modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                fontSize = 18.sp,
+                color = Color.Gray
+            )
+            Divider(color = Color.LightGray, thickness = 1.dp)
+            if (filesToShow.value.isNotEmpty()) {
+                LazyColumn(modifier.padding(it)) {
+                    items(items = filesToShow.value) { fileElem ->
+                        FileCard(
+                            extension = fileElem.extension,
+                            name = fileElem.name,
+                            space = fileElem.space,
+                            date = Date(fileElem.date),
+                            path = fileElem.path,
+                            filesToShow = filesToShow,
+                            currentPath = currentPath,
                         )
-                        Text("*Звук сверчков*", color = Color(0xFF181B52), fontWeight = FontWeight.Bold)
                     }
                 }
             }
+            else {
+                Column(
+                    modifier = modifier.fillMaxWidth(1f).fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.empty_folder),
+                        contentDescription = "Empty folder image"
+                    )
+                    Text("*Звук сверчков*", color = Color(0xFF181B52), fontWeight = FontWeight.Bold)
+                }
+            }
         }
-
     }
 }
 
